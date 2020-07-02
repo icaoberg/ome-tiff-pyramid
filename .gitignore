@@ -1,0 +1,9 @@
+*.Rproj
+*.h5ad
+*.mtx
+*~
+.*.kate-swp
+.*.swp
+.Rhistory
+.Rproj.user
+.idea/
