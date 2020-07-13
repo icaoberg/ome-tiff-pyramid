@@ -19,17 +19,20 @@ def find_ometiff_files(input_dir: Path) -> Iterable[Path]:
                 yield filepath
 
 def write_ometiff_json(input_dir: Path):
-    bundles = []
+    files = []
+    directories = []
     for ometiff_file in find_ometiff_files(input_dir):
-        bundles.append(
+        files.append(
             {
                 'class': 'File',
                 'path': fspath(ometiff_file),
             }
         )
+        directories.append(fspath(ometiff_file.relative_to(input_dir).parent))
+    data_for_json = {'files': files, 'directories': directories}
     print('Writing OME-TIFF JSON bundles to', OUTPUT_FILENAME)
     with open(OUTPUT_FILENAME, 'w') as f:
-        json.dump(bundles, f)
+        json.dump(data_for_json, f)
 
 if __name__ == '__main__':
     p = ArgumentParser()

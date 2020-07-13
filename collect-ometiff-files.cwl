@@ -26,6 +26,12 @@ outputs:
     outputBinding:
       glob: "ometiffs.json"
       loadContents: true
-      outputEval: ${return JSON.parse(self[0].contents);}
+      outputEval: ${return JSON.parse(self[0].contents).files;}
+  base_directory:
+    type: string[]
+    outputBinding:
+      glob: "ometiffs.json"
+      loadContents: true
+      outputEval: ${return JSON.parse(self[0].contents).directories;}
 
 baseCommand: [/opt/collect_ometiff_files.py]

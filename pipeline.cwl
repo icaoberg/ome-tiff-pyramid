@@ -14,9 +14,12 @@ inputs:
     type: boolean?
 
 outputs:
-  pyramid_file:
-    type: File[]
-    outputSource: convert_to_pyramid/pyramid_file
+  pyramid_dir:
+    type: Directory[]
+    outputSource: convert_to_pyramid/pyramid_dir
+  n5_dir:
+    type: Directory[]
+    outputSource: convert_to_pyramid/n5_dir
 
 steps:
   collect_ometiff_files:
@@ -24,14 +27,15 @@ steps:
     in:
       ometiff_directory: ometiff_directory
     out:
-      [ometiff_file]
+      [ometiff_file, base_directory]
 
   convert_to_pyramid:
-    scatter: [ometiff_file]
+    scatter: [ometiff_file, base_directory]
     scatterMethod: dotproduct
     run: steps/ometiff-to-pyramid.cwl
     in:
       ometiff_file: collect_ometiff_files/ometiff_file
+      base_directory: collect_ometiff_files/base_directory
       processes: processes
       rgb: rgb
-    out: [pyramid_file]
+    out: [pyramid_dir, n5_dir]

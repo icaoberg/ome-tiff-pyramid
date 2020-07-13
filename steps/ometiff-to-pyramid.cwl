@@ -10,21 +10,29 @@ inputs:
     type: File
     inputBinding:
       position: 0
+  base_directory:
+    type: string
+    inputBinding:
+      position: 1
   processes:
     type: int
     inputBinding:
-      position: 1
+      position: 2
   rgb:
     type: boolean?
     default: false
     inputBinding:
       prefix: --rgb
-      position: 2
+      position: 3
 
 outputs:
-  pyramid_file:
-    type: File
+  pyramid_dir:
+    type: Directory
     outputBinding:
-      glob: '*.ome.tif'
+      glob: 'ometiff-pyramids'
+  n5_dir:
+    type: Directory
+    outputBinding:
+      glob: 'n5'
 
 baseCommand: ['python3', '/opt/ometiff_to_pyramid.py']

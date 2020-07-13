@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
 from pathlib import Path
-import re
 from subprocess import run
 
 from utils import OME_TIFF_PATTERN
@@ -24,13 +23,18 @@ RAW2OMETIFF_COMMAND_TEMPLATE = [
     '--compression=zlib',
 ]
 
-def convert(ometiff_file: Path, processes: int, rgb: bool):
+N5_BASE_DIRECTORY = Path('n5')
+PYRAMID_BASE_DIRECTORY = Path('ometiff-pyramids')
+
+def convert(ometiff_file: Path, relative_directory: str, processes: int, rgb: bool):
     m = OME_TIFF_PATTERN.match(ometiff_file.name)
     if not m:
         message = f'Filename did not match OME-TIFF pattern: {ometiff_file.name}'
         raise ValueError(message)
     basename = m.group('basename')
-    n5_dir = f'{basename}.n5'
+    n5_parent_dir = N5_BASE_DIRECTORY / relative_directory
+    n5_parent_dir.mkdir(exist_ok=True, parents=True)
+    n5_dir = n5_parent_dir / f'{basename}.n5'
 
     command = [
         piece.format(
@@ -43,7 +47,9 @@ def convert(ometiff_file: Path, processes: int, rgb: bool):
     print('Running', ' '.join(command))
     run(command, check=True)
 
-    output_ometiff_filename = f'{basename}.ome.tif'
+    pyramid_parent_dir = PYRAMID_BASE_DIRECTORY / relative_directory
+    pyramid_parent_dir.mkdir(exist_ok=True, parents=True)
+    output_ometiff_filename = pyramid_parent_dir / f'{basename}.ome.tif'
 
     command = [
         piece.format(
@@ -60,8 +66,9 @@ def convert(ometiff_file: Path, processes: int, rgb: bool):
 if __name__ == '__main__':
     p = ArgumentParser()
     p.add_argument('ometiff_file', type=Path)
+    p.add_argument('relative_directory')
     p.add_argument('processes', type=int)
     p.add_argument('--rgb', action='store_true')
     args = p.parse_args()
 
-    convert(args.ometiff_file, args.processes, args.rgb)
+    convert(args.ometiff_file, args.relative_directory, args.processes, args.rgb)
