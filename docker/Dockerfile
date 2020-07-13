@@ -12,6 +12,7 @@ RUN apt-get update -qq \
     libblosc1 \
     tzdata \
     zeroc-ice-all-runtime \
+    zip \
  && rm -rf /var/cache/apt/*
 
 WORKDIR /bioformats_pyramid
