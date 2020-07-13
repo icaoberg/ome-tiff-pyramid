@@ -22,8 +22,17 @@ RAW2OMETIFF_COMMAND_TEMPLATE = [
     '{output_ometiff_file}',
     '--compression=zlib',
 ]
+# Quick-and-dirty usage; this is more convenient than calling something
+# like `os.walk` and feeding paths to the Python `zipfile` module
+ZIP_N5_COMMAND = [
+    'zip',
+    '-r',
+    '{zip_path}',
+    '{n5_path}',
+]
 
-N5_BASE_DIRECTORY = Path('n5')
+N5_RAW_BASE_DIRECTORY = Path('n5_raw')
+N5_ZIP_BASE_DIRECTORY = Path('n5')
 PYRAMID_BASE_DIRECTORY = Path('ometiff-pyramids')
 
 def convert(ometiff_file: Path, relative_directory: str, processes: int, rgb: bool):
@@ -32,14 +41,15 @@ def convert(ometiff_file: Path, relative_directory: str, processes: int, rgb: bo
         message = f'Filename did not match OME-TIFF pattern: {ometiff_file.name}'
         raise ValueError(message)
     basename = m.group('basename')
-    n5_parent_dir = N5_BASE_DIRECTORY / relative_directory
-    n5_parent_dir.mkdir(exist_ok=True, parents=True)
-    n5_dir = n5_parent_dir / f'{basename}.n5'
+
+    n5_raw_parent_dir = N5_RAW_BASE_DIRECTORY / relative_directory
+    n5_raw_parent_dir.mkdir(exist_ok=True, parents=True)
+    n5_raw_dir = n5_raw_parent_dir / f'{basename}.n5'
 
     command = [
         piece.format(
             input_file=ometiff_file,
-            n5_directory=n5_dir,
+            n5_directory=n5_raw_dir,
             processes=processes,
         )
         for piece in BIOFORMATS2RAW_COMMAND_TEMPLATE
@@ -53,13 +63,27 @@ def convert(ometiff_file: Path, relative_directory: str, processes: int, rgb: bo
 
     command = [
         piece.format(
-            n5_path=n5_dir,
+            n5_path=n5_raw_dir,
             output_ometiff_file=output_ometiff_filename,
         )
         for piece in RAW2OMETIFF_COMMAND_TEMPLATE
     ]
     if rgb:
         command.append('--rgb')
+    print('Running', ' '.join(command))
+    run(command, check=True)
+
+    n5_zip_parent_dir = N5_ZIP_BASE_DIRECTORY / relative_directory
+    n5_zip_parent_dir.mkdir(exist_ok=True, parents=True)
+    n5_zip_file = n5_zip_parent_dir / f'{basename}.n5.zip'
+
+    command = [
+        piece.format(
+            n5_path=n5_raw_dir,
+            zip_path=n5_zip_file,
+        )
+        for piece in ZIP_N5_COMMAND
+    ]
     print('Running', ' '.join(command))
     run(command, check=True)
 
