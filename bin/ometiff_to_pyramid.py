@@ -42,7 +42,7 @@ def convert(ometiff_file: Path, relative_directory: str, processes: int, rgb: bo
         raise ValueError(message)
     basename = m.group('basename')
 
-    n5_raw_parent_dir = N5_RAW_BASE_DIRECTORY / relative_directory
+    n5_raw_parent_dir = N5_RAW_BASE_DIRECTORY
     n5_raw_parent_dir.mkdir(exist_ok=True, parents=True)
     n5_raw_dir = n5_raw_parent_dir / f'{basename}.n5'
 
@@ -57,7 +57,7 @@ def convert(ometiff_file: Path, relative_directory: str, processes: int, rgb: bo
     print('Running', ' '.join(command))
     run(command, check=True)
 
-    pyramid_parent_dir = PYRAMID_BASE_DIRECTORY / relative_directory
+    pyramid_parent_dir = PYRAMID_BASE_DIRECTORY
     pyramid_parent_dir.mkdir(exist_ok=True, parents=True)
     output_ometiff_filename = pyramid_parent_dir / f'{basename}.ome.tif'
 
@@ -73,7 +73,7 @@ def convert(ometiff_file: Path, relative_directory: str, processes: int, rgb: bo
     print('Running', ' '.join(command))
     run(command, check=True)
 
-    n5_zip_parent_dir = N5_ZIP_BASE_DIRECTORY / relative_directory
+    n5_zip_parent_dir = N5_ZIP_BASE_DIRECTORY
     n5_zip_parent_dir.mkdir(exist_ok=True, parents=True)
     n5_zip_file = n5_zip_parent_dir / f'{basename}.n5.zip'
 
